@@ -16,16 +16,18 @@ manager.register('get_documents_list')
 manager.connect()
 
 
-@app.route("/query", methods=["GET"])
+@app.route("/ask", methods=["POST"])
 def query_index():
     global manager
-    query_text = request.args.get("text", None)
-    if query_text is None:
+    data = request.get_json()
+    user_question = data.get("user_question", None)
+
+    if user_question is None:
         return "No text found, please include a ?text=blah parameter in the URL", 400
     
-    response = manager.query_index(query_text)._getvalue()
+    response = manager.query_index(user_question)._getvalue()
     response_json = {
-        "text": str(response),
+        "answer": str(response),
         "sources": [{"text": str(x.source_text), 
                      "similarity": round(x.similarity, 2),
                      "doc_id": str(x.doc_id),
